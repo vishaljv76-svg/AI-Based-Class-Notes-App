@@ -19,6 +19,7 @@ import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.subjects.SubjectSelectionScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
+import com.example.Simtas.ui.upload.UploadLectureScreen
 import com.example.Simtas.ui.welcome.WelcomeScreen
 import kotlinx.coroutines.delay
 
@@ -31,7 +32,8 @@ enum class AppScreen {
     StudentOnboarding,
     SubjectSelection,
     HomeDashboard,
-    RecordLecture
+    RecordLecture,
+    UploadLecture
 }
 
 class MainActivity : ComponentActivity() {
@@ -146,7 +148,7 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.RecordLecture
                 },
                 onUploadAudioClick = {
-                    // Open file picker
+                    currentScreen = AppScreen.UploadLecture
                 },
                 onMyNotesClick = {
                     // Open notes list
@@ -168,6 +170,16 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.HomeDashboard
                 },
                 onStopRecordingClick = {
+                    currentScreen = AppScreen.HomeDashboard
+                }
+            )
+        }
+        AppScreen.UploadLecture -> {
+            UploadLectureScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.HomeDashboard
+                },
+                onContinueClick = {
                     currentScreen = AppScreen.HomeDashboard
                 }
             )
