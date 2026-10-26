@@ -14,6 +14,7 @@ import com.example.Simtas.ui.createnotes.CreateSmartNotesScreen
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.home.DashboardScreen
 import com.example.Simtas.ui.login.LoginScreen
+import com.example.Simtas.ui.notes.GeneratedNotesScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.preview.LecturePreviewScreen
 import com.example.Simtas.ui.record.RecordLectureScreen
@@ -39,7 +40,8 @@ enum class AppScreen {
     UploadLecture,
     LecturePreview,
     Transcript,
-    CreateSmartNotes
+    CreateSmartNotes,
+    GeneratedNotes
 }
 
 class MainActivity : ComponentActivity() {
@@ -157,16 +159,16 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.UploadLecture
                 },
                 onMyNotesClick = {
-                    // Open notes list
+                    currentScreen = AppScreen.GeneratedNotes
                 },
                 onAiQuizClick = {
                     // Open quiz
                 },
                 onViewAllNotesClick = {
-                    // Open notes list
+                    currentScreen = AppScreen.GeneratedNotes
                 },
                 onNoteClick = { noteId ->
-                    currentScreen = AppScreen.LecturePreview
+                    currentScreen = AppScreen.GeneratedNotes
                 }
             )
         }
@@ -214,6 +216,19 @@ fun MainAppNavigation() {
             CreateSmartNotesScreen(
                 onBackClick = {
                     currentScreen = AppScreen.Transcript
+                }
+            )
+        }
+        AppScreen.GeneratedNotes -> {
+            GeneratedNotesScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.HomeDashboard
+                },
+                onViewFullNotesClick = {
+                    // View full notes detail
+                },
+                onTakeQuizClick = {
+                    // Open Quiz
                 }
             )
         }

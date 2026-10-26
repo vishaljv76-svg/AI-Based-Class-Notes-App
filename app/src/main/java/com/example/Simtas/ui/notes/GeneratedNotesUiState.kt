@@ -1,0 +1,23 @@
+package com.example.Simtas.ui.notes
+
+/**
+ * UI State for Generated Notes Screen following MVVM architecture.
+ */
+data class GeneratedNotesUiState(
+    val subjectBadge: String = "Computer Science",
+    val lectureTitle: String = "Database Normalization",
+    val metadataText: String = "21 Oct 2026 · 42 min 18 sec · CS301",
+    val aiSummaryText: String = "Normalization reduces redundancy and prevents data anomalies. Move from atomic values (1NF) to full-key dependency (2NF), then remove transitive dependencies (3NF).",
+    val keyTakeaways: List<String> = listOf(
+        "Repeated data can cause update, insertion and deletion anomalies.",
+        "2NF removes partial dependencies on a composite key.",
+        "3NF keeps non-key attributes dependent only on the key."
+    ),
+    val importantTerms: List<String> = listOf(
+        "Functional dependency",
+        "Composite key",
+        "Normal forms"
+    ),
+    val isSaved: Boolean = false,
+    val isLoading: Boolean = false
+)
