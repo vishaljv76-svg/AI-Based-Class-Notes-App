@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.login.LoginScreen
 import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
@@ -21,7 +22,8 @@ enum class AppScreen {
     Splash,
     Welcome,
     Login,
-    Signup
+    Signup,
+    ForgotPassword
 }
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +72,9 @@ fun MainAppNavigation() {
                 onBackClick = {
                     currentScreen = AppScreen.Welcome
                 },
+                onForgotPasswordClick = {
+                    currentScreen = AppScreen.ForgotPassword
+                },
                 onLoginSuccess = {
                     // Future home screen
                 },
@@ -88,6 +93,16 @@ fun MainAppNavigation() {
                 },
                 onSignupSuccess = {
                     // Future home screen
+                }
+            )
+        }
+        AppScreen.ForgotPassword -> {
+            ForgotPasswordScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.Login
+                },
+                onBackToLoginClick = {
+                    currentScreen = AppScreen.Login
                 }
             )
         }
