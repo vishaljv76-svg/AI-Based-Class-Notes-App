@@ -14,6 +14,7 @@ import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.home.DashboardScreen
 import com.example.Simtas.ui.login.LoginScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
+import com.example.Simtas.ui.record.RecordLectureScreen
 import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.subjects.SubjectSelectionScreen
@@ -29,7 +30,8 @@ enum class AppScreen {
     ForgotPassword,
     StudentOnboarding,
     SubjectSelection,
-    HomeDashboard
+    HomeDashboard,
+    RecordLecture
 }
 
 class MainActivity : ComponentActivity() {
@@ -141,7 +143,7 @@ fun MainAppNavigation() {
                     // Open notifications
                 },
                 onRecordLectureClick = {
-                    // Open audio recorder
+                    currentScreen = AppScreen.RecordLecture
                 },
                 onUploadAudioClick = {
                     // Open file picker
@@ -157,6 +159,16 @@ fun MainAppNavigation() {
                 },
                 onNoteClick = { noteId ->
                     // Open note details
+                }
+            )
+        }
+        AppScreen.RecordLecture -> {
+            RecordLectureScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.HomeDashboard
+                },
+                onStopRecordingClick = {
+                    currentScreen = AppScreen.HomeDashboard
                 }
             )
         }
