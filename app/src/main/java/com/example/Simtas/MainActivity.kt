@@ -4,14 +4,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
+import com.example.Simtas.ui.welcome.WelcomeScreen
+import kotlinx.coroutines.delay
+
+enum class AppScreen {
+    Splash,
+    Welcome
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +26,40 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AIBasedClassNotesAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                MainAppNavigation()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun MainAppNavigation() {
+    var currentScreen by remember { mutableStateOf(AppScreen.Splash) }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AIBasedClassNotesAppTheme {
-        Greeting("Android")
+    // Automatic navigation from Splash to Welcome screen after 2.5 seconds
+    LaunchedEffect(currentScreen) {
+        if (currentScreen == AppScreen.Splash) {
+            delay(2500)
+            currentScreen = AppScreen.Welcome
+        }
+    }
+
+    when (currentScreen) {
+        AppScreen.Splash -> {
+            SplashScreen()
+        }
+        AppScreen.Welcome -> {
+            WelcomeScreen(
+                onGetStartedClick = {
+                    // Action for Get Started button
+                },
+                onLoginClick = {
+                    // Action for Login link
+                },
+                onSignUpClick = {
+                    // Action for Sign Up link
+                }
+            )
+        }
     }
 }
