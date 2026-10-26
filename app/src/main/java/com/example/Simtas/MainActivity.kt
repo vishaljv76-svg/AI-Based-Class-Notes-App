@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.Simtas.ui.createnotes.CreateSmartNotesScreen
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.home.DashboardScreen
 import com.example.Simtas.ui.login.LoginScreen
@@ -37,7 +38,8 @@ enum class AppScreen {
     RecordLecture,
     UploadLecture,
     LecturePreview,
-    Transcript
+    Transcript,
+    CreateSmartNotes
 }
 
 class MainActivity : ComponentActivity() {
@@ -204,7 +206,14 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.LecturePreview
                 },
                 onGenerateNotesClick = {
-                    // AI Generated Notes Screen
+                    currentScreen = AppScreen.CreateSmartNotes
+                }
+            )
+        }
+        AppScreen.CreateSmartNotes -> {
+            CreateSmartNotesScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.Transcript
                 }
             )
         }
