@@ -15,6 +15,7 @@ import com.example.Simtas.ui.login.LoginScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
+import com.example.Simtas.ui.subjects.SubjectSelectionScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
 import com.example.Simtas.ui.welcome.WelcomeScreen
 import kotlinx.coroutines.delay
@@ -25,7 +26,8 @@ enum class AppScreen {
     Login,
     Signup,
     ForgotPassword,
-    StudentOnboarding
+    StudentOnboarding,
+    SubjectSelection
 }
 
 class MainActivity : ComponentActivity() {
@@ -113,8 +115,21 @@ fun MainAppNavigation() {
                 onBackClick = {
                     currentScreen = AppScreen.Welcome
                 },
+                onChooseSubjectsClick = {
+                    currentScreen = AppScreen.SubjectSelection
+                },
                 onContinueClick = {
-                    // Step 2 or Home dashboard screen
+                    currentScreen = AppScreen.SubjectSelection
+                }
+            )
+        }
+        AppScreen.SubjectSelection -> {
+            SubjectSelectionScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.StudentOnboarding
+                },
+                onStartLearningClick = {
+                    // Future Dashboard Screen
                 }
             )
         }
