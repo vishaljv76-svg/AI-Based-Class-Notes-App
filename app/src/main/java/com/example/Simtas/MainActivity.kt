@@ -20,6 +20,7 @@ import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.subjects.SubjectSelectionScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
+import com.example.Simtas.ui.transcript.TranscriptScreen
 import com.example.Simtas.ui.upload.UploadLectureScreen
 import com.example.Simtas.ui.welcome.WelcomeScreen
 import kotlinx.coroutines.delay
@@ -35,7 +36,8 @@ enum class AppScreen {
     HomeDashboard,
     RecordLecture,
     UploadLecture,
-    LecturePreview
+    LecturePreview,
+    Transcript
 }
 
 class MainActivity : ComponentActivity() {
@@ -192,7 +194,17 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.HomeDashboard
                 },
                 onGenerateTranscriptClick = {
-                    currentScreen = AppScreen.HomeDashboard
+                    currentScreen = AppScreen.Transcript
+                }
+            )
+        }
+        AppScreen.Transcript -> {
+            TranscriptScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.LecturePreview
+                },
+                onGenerateNotesClick = {
+                    // AI Generated Notes Screen
                 }
             )
         }
