@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
+import com.example.Simtas.ui.home.DashboardScreen
 import com.example.Simtas.ui.login.LoginScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.signup.SignupScreen
@@ -27,7 +28,8 @@ enum class AppScreen {
     Signup,
     ForgotPassword,
     StudentOnboarding,
-    SubjectSelection
+    SubjectSelection,
+    HomeDashboard
 }
 
 class MainActivity : ComponentActivity() {
@@ -129,7 +131,32 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.StudentOnboarding
                 },
                 onStartLearningClick = {
-                    // Future Dashboard Screen
+                    currentScreen = AppScreen.HomeDashboard
+                }
+            )
+        }
+        AppScreen.HomeDashboard -> {
+            DashboardScreen(
+                onNotificationClick = {
+                    // Open notifications
+                },
+                onRecordLectureClick = {
+                    // Open audio recorder
+                },
+                onUploadAudioClick = {
+                    // Open file picker
+                },
+                onMyNotesClick = {
+                    // Open notes list
+                },
+                onAiQuizClick = {
+                    // Open quiz
+                },
+                onViewAllNotesClick = {
+                    // Open notes list
+                },
+                onNoteClick = { noteId ->
+                    // Open note details
                 }
             )
         }
