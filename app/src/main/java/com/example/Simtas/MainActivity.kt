@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.Simtas.ui.login.LoginScreen
+import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
 import com.example.Simtas.ui.welcome.WelcomeScreen
@@ -19,7 +20,8 @@ import kotlinx.coroutines.delay
 enum class AppScreen {
     Splash,
     Welcome,
-    Login
+    Login,
+    Signup
 }
 
 class MainActivity : ComponentActivity() {
@@ -53,13 +55,13 @@ fun MainAppNavigation() {
         AppScreen.Welcome -> {
             WelcomeScreen(
                 onGetStartedClick = {
-                    currentScreen = AppScreen.Login
+                    currentScreen = AppScreen.Signup
                 },
                 onLoginClick = {
                     currentScreen = AppScreen.Login
                 },
                 onSignUpClick = {
-                    // Navigate to Sign Up screen when added
+                    currentScreen = AppScreen.Signup
                 }
             )
         }
@@ -69,10 +71,23 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.Welcome
                 },
                 onLoginSuccess = {
-                    // Navigate to Home screen when added
+                    // Future home screen
                 },
                 onSignUpClick = {
-                    // Navigate to Sign Up screen when added
+                    currentScreen = AppScreen.Signup
+                }
+            )
+        }
+        AppScreen.Signup -> {
+            SignupScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.Welcome
+                },
+                onLoginClick = {
+                    currentScreen = AppScreen.Login
+                },
+                onSignupSuccess = {
+                    // Future home screen
                 }
             )
         }
