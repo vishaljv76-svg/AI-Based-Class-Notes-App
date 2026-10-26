@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.login.LoginScreen
+import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
@@ -23,7 +24,8 @@ enum class AppScreen {
     Welcome,
     Login,
     Signup,
-    ForgotPassword
+    ForgotPassword,
+    StudentOnboarding
 }
 
 class MainActivity : ComponentActivity() {
@@ -76,7 +78,7 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.ForgotPassword
                 },
                 onLoginSuccess = {
-                    // Future home screen
+                    currentScreen = AppScreen.StudentOnboarding
                 },
                 onSignUpClick = {
                     currentScreen = AppScreen.Signup
@@ -92,7 +94,7 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.Login
                 },
                 onSignupSuccess = {
-                    // Future home screen
+                    currentScreen = AppScreen.StudentOnboarding
                 }
             )
         }
@@ -103,6 +105,16 @@ fun MainAppNavigation() {
                 },
                 onBackToLoginClick = {
                     currentScreen = AppScreen.Login
+                }
+            )
+        }
+        AppScreen.StudentOnboarding -> {
+            StudentOnboardingScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.Welcome
+                },
+                onContinueClick = {
+                    // Step 2 or Home dashboard screen
                 }
             )
         }
