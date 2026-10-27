@@ -20,6 +20,7 @@ import com.example.Simtas.ui.mynotes.MyNotesScreen
 import com.example.Simtas.ui.notes.GeneratedNotesScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.preview.LecturePreviewScreen
+import com.example.Simtas.ui.profile.ProfileSettingsScreen
 import com.example.Simtas.ui.quiz.QuizGeneratorScreen
 import com.example.Simtas.ui.quizquestion.QuizQuestionScreen
 import com.example.Simtas.ui.quizresults.QuizResultsScreen
@@ -52,7 +53,8 @@ enum class AppScreen {
     QuizGenerator,
     QuizQuestion,
     QuizResults,
-    MyNotes
+    MyNotes,
+    ProfileSettings
 }
 
 class MainActivity : ComponentActivity() {
@@ -295,8 +297,24 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.DetailedNotes
                 },
                 onTabSelect = { tab ->
-                    if (tab == HomeBottomTab.Home) {
-                        currentScreen = AppScreen.HomeDashboard
+                    when (tab) {
+                        HomeBottomTab.Home -> currentScreen = AppScreen.HomeDashboard
+                        HomeBottomTab.Notes -> currentScreen = AppScreen.MyNotes
+                        HomeBottomTab.Profile -> currentScreen = AppScreen.ProfileSettings
+                    }
+                }
+            )
+        }
+        AppScreen.ProfileSettings -> {
+            ProfileSettingsScreen(
+                onLogoutClick = {
+                    currentScreen = AppScreen.Welcome
+                },
+                onTabSelect = { tab ->
+                    when (tab) {
+                        HomeBottomTab.Home -> currentScreen = AppScreen.HomeDashboard
+                        HomeBottomTab.Notes -> currentScreen = AppScreen.MyNotes
+                        HomeBottomTab.Profile -> currentScreen = AppScreen.ProfileSettings
                     }
                 }
             )
