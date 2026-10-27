@@ -14,7 +14,9 @@ import com.example.Simtas.ui.createnotes.CreateSmartNotesScreen
 import com.example.Simtas.ui.detailednotes.DetailedNotesScreen
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
 import com.example.Simtas.ui.home.DashboardScreen
+import com.example.Simtas.ui.home.HomeBottomTab
 import com.example.Simtas.ui.login.LoginScreen
+import com.example.Simtas.ui.mynotes.MyNotesScreen
 import com.example.Simtas.ui.notes.GeneratedNotesScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.preview.LecturePreviewScreen
@@ -49,7 +51,8 @@ enum class AppScreen {
     DetailedNotes,
     QuizGenerator,
     QuizQuestion,
-    QuizResults
+    QuizResults,
+    MyNotes
 }
 
 class MainActivity : ComponentActivity() {
@@ -167,13 +170,13 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.UploadLecture
                 },
                 onMyNotesClick = {
-                    currentScreen = AppScreen.GeneratedNotes
+                    currentScreen = AppScreen.MyNotes
                 },
                 onAiQuizClick = {
                     currentScreen = AppScreen.QuizGenerator
                 },
                 onViewAllNotesClick = {
-                    currentScreen = AppScreen.GeneratedNotes
+                    currentScreen = AppScreen.MyNotes
                 },
                 onNoteClick = { noteId ->
                     currentScreen = AppScreen.DetailedNotes
@@ -279,7 +282,22 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.QuizQuestion
                 },
                 onBackToNotesClick = {
-                    currentScreen = AppScreen.GeneratedNotes
+                    currentScreen = AppScreen.MyNotes
+                }
+            )
+        }
+        AppScreen.MyNotes -> {
+            MyNotesScreen(
+                onAddNoteClick = {
+                    currentScreen = AppScreen.RecordLecture
+                },
+                onNoteClick = { noteId ->
+                    currentScreen = AppScreen.DetailedNotes
+                },
+                onTabSelect = { tab ->
+                    if (tab == HomeBottomTab.Home) {
+                        currentScreen = AppScreen.HomeDashboard
+                    }
                 }
             )
         }
