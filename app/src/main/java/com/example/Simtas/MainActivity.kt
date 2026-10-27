@@ -19,6 +19,7 @@ import com.example.Simtas.ui.notes.GeneratedNotesScreen
 import com.example.Simtas.ui.onboarding.StudentOnboardingScreen
 import com.example.Simtas.ui.preview.LecturePreviewScreen
 import com.example.Simtas.ui.quiz.QuizGeneratorScreen
+import com.example.Simtas.ui.quizquestion.QuizQuestionScreen
 import com.example.Simtas.ui.record.RecordLectureScreen
 import com.example.Simtas.ui.signup.SignupScreen
 import com.example.Simtas.ui.splash.SplashScreen
@@ -45,7 +46,8 @@ enum class AppScreen {
     CreateSmartNotes,
     GeneratedNotes,
     DetailedNotes,
-    QuizGenerator
+    QuizGenerator,
+    QuizQuestion
 }
 
 class MainActivity : ComponentActivity() {
@@ -252,6 +254,16 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.GeneratedNotes
                 },
                 onGenerateQuizClick = {
+                    currentScreen = AppScreen.QuizQuestion
+                }
+            )
+        }
+        AppScreen.QuizQuestion -> {
+            QuizQuestionScreen(
+                onBackClick = {
+                    currentScreen = AppScreen.QuizGenerator
+                },
+                onQuizFinish = {
                     currentScreen = AppScreen.HomeDashboard
                 }
             )
