@@ -17,5 +17,10 @@ data class ProfileSettingsUiState(
     val isNotesReadyAlertsEnabled: Boolean = true,
     val themeModeText: String = "Light",
     val appVersionText: String = "SmartNotes AI · v1.0.0",
-    val selectedTab: HomeBottomTab = HomeBottomTab.Profile
+    val selectedTab: HomeBottomTab = HomeBottomTab.Profile,
+    val isEditing: Boolean = false,
+    val editName: String = "",
+    val editCourse: String = "",
+    val editDepartment: String = "",
+    val editSemester: String = ""
 )

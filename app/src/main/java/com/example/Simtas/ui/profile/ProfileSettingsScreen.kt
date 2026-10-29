@@ -18,7 +18,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -64,6 +69,12 @@ fun ProfileSettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: ProfileSettingsViewModel = remember { ProfileSettingsViewModel() },
     onEditProfileClick: () -> Unit = {},
+    onCancelEdit: () -> Unit = {},
+    onSaveChanges: () -> Unit = {},
+    onNameChange: (String) -> Unit = {},
+    onCourseChange: (String) -> Unit = {},
+    onDepartmentChange: (String) -> Unit = {},
+    onSemesterChange: (String) -> Unit = {},
     onAccountPasswordClick: () -> Unit = {},
     onPrivacyStorageClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -74,7 +85,16 @@ fun ProfileSettingsScreen(
     ProfileSettingsScreenContent(
         uiState = uiState,
         modifier = modifier,
-        onEditProfileClick = onEditProfileClick,
+        onEditProfileClick = {
+            viewModel.onEditProfileClicked()
+            onEditProfileClick()
+        },
+        onCancelEdit = viewModel::onCancelEditClicked,
+        onSaveChanges = viewModel::onSaveChangesClicked,
+        onNameChange = viewModel::onEditNameChange,
+        onCourseChange = viewModel::onEditCourseChange,
+        onDepartmentChange = viewModel::onEditDepartmentChange,
+        onSemesterChange = viewModel::onEditSemesterChange,
         onToggleStudyReminders = viewModel::toggleStudyReminders,
         onToggleNotesReadyAlerts = viewModel::toggleNotesReadyAlerts,
         onAccountPasswordClick = onAccountPasswordClick,
@@ -95,6 +115,12 @@ fun ProfileSettingsScreenContent(
     uiState: ProfileSettingsUiState,
     modifier: Modifier = Modifier,
     onEditProfileClick: () -> Unit = {},
+    onCancelEdit: () -> Unit = {},
+    onSaveChanges: () -> Unit = {},
+    onNameChange: (String) -> Unit = {},
+    onCourseChange: (String) -> Unit = {},
+    onDepartmentChange: (String) -> Unit = {},
+    onSemesterChange: (String) -> Unit = {},
     onToggleStudyReminders: (Boolean) -> Unit = {},
     onToggleNotesReadyAlerts: (Boolean) -> Unit = {},
     onAccountPasswordClick: () -> Unit = {},
@@ -130,7 +156,13 @@ fun ProfileSettingsScreenContent(
                 // User Profile Card
                 UserProfileCard(
                     uiState = uiState,
-                    onEditClick = onEditProfileClick
+                    onEditClick = onEditProfileClick,
+                    onCancelEdit = onCancelEdit,
+                    onSaveChanges = onSaveChanges,
+                    onNameChange = onNameChange,
+                    onCourseChange = onCourseChange,
+                    onDepartmentChange = onDepartmentChange,
+                    onSemesterChange = onSemesterChange
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -229,7 +261,13 @@ fun ProfileSettingsScreenContent(
 @Composable
 private fun UserProfileCard(
     uiState: ProfileSettingsUiState,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    onCancelEdit: () -> Unit = {},
+    onSaveChanges: () -> Unit = {},
+    onNameChange: (String) -> Unit = {},
+    onCourseChange: (String) -> Unit = {},
+    onDepartmentChange: (String) -> Unit = {},
+    onSemesterChange: (String) -> Unit = {}
 ) {
     val shape = RoundedCornerShape(24.dp)
     Box(
@@ -245,107 +283,298 @@ private fun UserProfileCard(
             .background(Color.White)
             .padding(18.dp)
     ) {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Initials Avatar
+        if (!uiState.isEditing) {
+            Column {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Initials Avatar
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(52.dp)
+                                .clip(CircleShape)
+                                .background(InnerCircleBg)
+                        ) {
+                            Text(
+                                text = uiState.userInitials,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = PurplePrimary
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column {
+                            Text(
+                                text = uiState.userName,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDarkPrimary
+                            )
+
+                            Spacer(modifier = Modifier.height(2.dp))
+
+                            Text(
+                                text = uiState.userEmail,
+                                fontSize = 12.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
+
+                    IconButton(
+                        onClick = onEditClick,
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Canvas(modifier = Modifier.size(18.dp)) {
+                            drawPencilEditIcon(PurplePrimary)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // Academic Details
+                Text(
+                    text = uiState.courseText,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDarkPrimary
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = uiState.departmentText,
+                    fontSize = 12.sp,
+                    color = TextMuted
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Badges Row
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
-                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .size(52.dp)
                             .clip(CircleShape)
                             .background(InnerCircleBg)
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
                     ) {
                         Text(
-                            text = uiState.userInitials,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
+                            text = uiState.semesterBadgeText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
                             color = PurplePrimary
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(14.dp))
-
-                    Column {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(Color(0xFFEEF3FF))
+                            .padding(horizontal = 12.dp, vertical = 5.dp)
+                    ) {
                         Text(
-                            text = uiState.userName,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextDarkPrimary
+                            text = uiState.yearBadgeText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = PurplePrimary
                         )
-
-                        Spacer(modifier = Modifier.height(2.dp))
-
-                        Text(
-                            text = uiState.userEmail,
-                            fontSize = 12.sp,
-                            color = TextMuted
-                        )
-                    }
-                }
-
-                IconButton(
-                    onClick = onEditClick,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Canvas(modifier = Modifier.size(18.dp)) {
-                        drawPencilEditIcon(PurplePrimary)
                     }
                 }
             }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Academic Details
-            Text(
-                text = uiState.courseText,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextDarkPrimary
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = uiState.departmentText,
-                fontSize = 12.sp,
-                color = TextMuted
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Badges Row
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(InnerCircleBg)
-                        .padding(horizontal = 12.dp, vertical = 5.dp)
+        } else {
+            // In-place Edit Form
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = uiState.semesterBadgeText,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PurplePrimary
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(InnerCircleBg)
+                        ) {
+                            Text(
+                                text = uiState.userInitials,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = PurplePrimary
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                text = "Edit Profile",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDarkPrimary
+                            )
+                            Text(
+                                text = uiState.userEmail,
+                                fontSize = 12.sp,
+                                color = TextMuted
+                            )
+                        }
+                    }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(Color(0xFFEEF3FF))
-                        .padding(horizontal = 12.dp, vertical = 5.dp)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Field 1: Student Name
+                Text(
+                    text = "Student Name",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDarkPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = uiState.editName,
+                    onValueChange = onNameChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF9F9FB),
+                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedBorderColor = PurplePrimary,
+                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        focusedTextColor = TextDarkPrimary,
+                        unfocusedTextColor = TextDarkPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Field 2: Course
+                Text(
+                    text = "Course",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDarkPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = uiState.editCourse,
+                    onValueChange = onCourseChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF9F9FB),
+                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedBorderColor = PurplePrimary,
+                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        focusedTextColor = TextDarkPrimary,
+                        unfocusedTextColor = TextDarkPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Field 3: Department
+                Text(
+                    text = "Department",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDarkPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = uiState.editDepartment,
+                    onValueChange = onDepartmentChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF9F9FB),
+                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedBorderColor = PurplePrimary,
+                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        focusedTextColor = TextDarkPrimary,
+                        unfocusedTextColor = TextDarkPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Field 4: Semester
+                Text(
+                    text = "Semester",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDarkPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = uiState.editSemester,
+                    onValueChange = onSemesterChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF9F9FB),
+                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedBorderColor = PurplePrimary,
+                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        focusedTextColor = TextDarkPrimary,
+                        unfocusedTextColor = TextDarkPrimary
+                    ),
+                    singleLine = true
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Action Buttons: Cancel and Save Changes
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(
-                        text = uiState.yearBadgeText,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PurplePrimary
-                    )
+                    OutlinedButton(
+                        onClick = onCancelEdit,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp),
+                        shape = RoundedCornerShape(23.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = TextDarkPrimary
+                        )
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+
+                    Button(
+                        onClick = onSaveChanges,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(46.dp),
+                        shape = RoundedCornerShape(23.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = PurplePrimary
+                        )
+                    ) {
+                        Text(
+                            text = "Save Changes",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
