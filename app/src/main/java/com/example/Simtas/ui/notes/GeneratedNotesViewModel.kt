@@ -1,13 +1,16 @@
 package com.example.Simtas.ui.notes
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.Simtas.data.repository.NotesRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
- * ViewModel for [GeneratedNotesScreen] adhering to MVVM architecture.
+ * ViewModel for [GeneratedNotesScreen] adhering to MVVM architecture with real API saving.
  */
 class GeneratedNotesViewModel : ViewModel() {
 
@@ -23,6 +26,21 @@ class GeneratedNotesViewModel : ViewModel() {
     }
 
     fun onSaveNotesClicked() {
-        _uiState.update { it.copy(isSaved = true) }
+        onSaveNotesClicked({})
+    }
+
+    fun onSaveNotesClicked(onSuccess: (String?) -> Unit = {}) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val noteId = NotesRepositoryImpl.createNote(
+                title = _uiState.value.lectureTitle,
+                subject = _uiState.value.subjectBadge,
+                summary = _uiState.value.aiSummaryText,
+                keyTakeaways = _uiState.value.keyTakeaways,
+                importantTerms = _uiState.value.importantTerms
+            )
+            _uiState.update { it.copy(isLoading = false, isSaved = true) }
+            onSuccess(noteId)
+        }
     }
 }

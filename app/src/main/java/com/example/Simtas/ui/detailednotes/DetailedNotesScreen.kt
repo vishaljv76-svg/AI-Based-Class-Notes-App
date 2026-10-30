@@ -463,3 +463,4 @@ fun DetailedNotesScreenPreview() {
         DetailedNotesScreenContent(uiState = DetailedNotesUiState())
     }
 }
+

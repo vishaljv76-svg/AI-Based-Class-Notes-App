@@ -81,8 +81,8 @@ fun LoginScreen(
             onForgotPasswordClick()
         },
         onLoginClick = {
-            viewModel.onLoginClicked()
-            onLoginSuccess()
+            viewModel.onLoginClicked { onLoginSuccess() }
+
         },
         onSignUpClick = onSignUpClick
     )
@@ -252,6 +252,19 @@ fun LoginScreenContent(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                if (!uiState.errorMessage.isNullOrEmpty()) {
+                    Text(
+                        text = uiState.errorMessage,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color(0xFFD32F2F),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp)
+                    )
+                }
 
                 // Login Button
                 Button(

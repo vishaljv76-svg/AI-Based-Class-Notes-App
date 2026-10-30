@@ -13,5 +13,6 @@ data class SignupUiState(
     val isPasswordValid: Boolean = true,
     val passwordValidationText: String = "12 characters · includes a number and symbol",
     val isLoading: Boolean = false,
-    val isSignupSuccess: Boolean = false
+    val isSignupSuccess: Boolean = false,
+    val errorMessage: String? = null
 )

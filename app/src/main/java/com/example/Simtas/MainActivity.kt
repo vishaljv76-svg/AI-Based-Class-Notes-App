@@ -10,6 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.Simtas.data.remote.SessionManager
+import com.example.Simtas.ui.detailednotes.DetailedNotesViewModel
 import com.example.Simtas.ui.createnotes.CreateSmartNotesScreen
 import com.example.Simtas.ui.detailednotes.DetailedNotesScreen
 import com.example.Simtas.ui.forgotpassword.ForgotPasswordScreen
@@ -60,6 +62,7 @@ enum class AppScreen {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        SessionManager.init(this)
         enableEdgeToEdge()
         setContent {
             AIBasedClassNotesAppTheme {
@@ -72,6 +75,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainAppNavigation() {
     var currentScreen by remember { mutableStateOf(AppScreen.Splash) }
+    var selectedNoteId by remember { mutableStateOf("1") }
 
     // Automatic navigation from Splash to Welcome screen after 2.5 seconds
     LaunchedEffect(currentScreen) {
@@ -181,6 +185,7 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.MyNotes
                 },
                 onNoteClick = { noteId ->
+                    selectedNoteId = noteId
                     currentScreen = AppScreen.DetailedNotes
                 }
             )
@@ -246,7 +251,12 @@ fun MainAppNavigation() {
             )
         }
         AppScreen.DetailedNotes -> {
+            val detailedViewModel: DetailedNotesViewModel = remember(selectedNoteId) { DetailedNotesViewModel() }
+            LaunchedEffect(selectedNoteId) {
+                detailedViewModel.loadNote(selectedNoteId)
+            }
             DetailedNotesScreen(
+                viewModel = detailedViewModel,
                 onBackClick = {
                     currentScreen = AppScreen.GeneratedNotes
                 },
@@ -294,6 +304,7 @@ fun MainAppNavigation() {
                     currentScreen = AppScreen.RecordLecture
                 },
                 onNoteClick = { noteId ->
+                    selectedNoteId = noteId
                     currentScreen = AppScreen.DetailedNotes
                 },
                 onTabSelect = { tab ->

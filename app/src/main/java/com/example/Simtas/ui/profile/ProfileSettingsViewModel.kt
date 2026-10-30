@@ -1,19 +1,58 @@
 package com.example.Simtas.ui.profile
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.Simtas.data.remote.SessionManager
+import com.example.Simtas.data.repository.AuthRepository
+import com.example.Simtas.data.repository.ProfileRepository
 import com.example.Simtas.ui.home.HomeBottomTab
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 /**
- * ViewModel for [ProfileSettingsScreen] adhering to MVVM architecture.
+ * ViewModel for [ProfileSettingsScreen] adhering to MVVM architecture with real API synchronization.
  */
 class ProfileSettingsViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileSettingsUiState())
     val uiState: StateFlow<ProfileSettingsUiState> = _uiState.asStateFlow()
+
+    init {
+        loadProfile()
+    }
+
+    fun loadProfile() {
+        viewModelScope.launch {
+            val profile = ProfileRepository.fetchProfile()
+            if (profile != null) {
+                _uiState.update { current ->
+                    current.copy(
+                        userName = profile.userName,
+                        userEmail = profile.userEmail,
+                        userInitials = profile.userInitials,
+                        courseText = profile.courseText,
+                        departmentText = profile.departmentText,
+                        semesterBadgeText = profile.semesterBadgeText,
+                        yearBadgeText = profile.yearBadgeText
+                    )
+                }
+            } else {
+                // Use session details if available
+                val name = SessionManager.getUserName()
+                val email = SessionManager.getUserEmail()
+                _uiState.update { current ->
+                    current.copy(
+                        userName = name,
+                        userEmail = email,
+                        userInitials = computeInitials(name)
+                    )
+                }
+            }
+        }
+    }
 
     fun toggleStudyReminders(enabled: Boolean) {
         _uiState.update { it.copy(isStudyRemindersEnabled = enabled) }
@@ -27,8 +66,11 @@ class ProfileSettingsViewModel : ViewModel() {
         _uiState.update { it.copy(selectedTab = tab) }
     }
 
-    fun onLogoutClicked() {
-        // Logout logic
+    fun onLogoutClicked(onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            AuthRepository.logout(null)
+            onSuccess()
+        }
     }
 
     fun onEditProfileClicked() {
@@ -64,16 +106,18 @@ class ProfileSettingsViewModel : ViewModel() {
     }
 
     fun onSaveChangesClicked() {
-        _uiState.update { current ->
-            val trimmedName = current.editName.trim().ifEmpty { current.userName }
-            val trimmedCourse = current.editCourse.trim().ifEmpty { current.courseText }
-            val trimmedDept = current.editDepartment.trim().ifEmpty { current.departmentText }
-            val trimmedSem = current.editSemester.trim().ifEmpty { current.semesterBadgeText }
+        val current = _uiState.value
+        val trimmedName = current.editName.trim().ifEmpty { current.userName }
+        val trimmedCourse = current.editCourse.trim().ifEmpty { current.courseText }
+        val trimmedDept = current.editDepartment.trim().ifEmpty { current.departmentText }
+        val trimmedSem = current.editSemester.trim().ifEmpty { current.semesterBadgeText }
 
-            val initials = computeInitials(trimmedName)
-            val yearBadge = computeYearBadge(trimmedSem, current.yearBadgeText)
+        val initials = computeInitials(trimmedName)
+        val yearBadge = computeYearBadge(trimmedSem, current.yearBadgeText)
 
-            current.copy(
+        // Optimistically update UI
+        _uiState.update {
+            it.copy(
                 userName = trimmedName,
                 userInitials = initials,
                 courseText = trimmedCourse,
@@ -81,6 +125,16 @@ class ProfileSettingsViewModel : ViewModel() {
                 semesterBadgeText = trimmedSem,
                 yearBadgeText = yearBadge,
                 isEditing = false
+            )
+        }
+
+        // Asynchronously persist to MySQL backend
+        viewModelScope.launch {
+            ProfileRepository.saveOrUpdateProfile(
+                name = trimmedName,
+                course = trimmedCourse,
+                department = trimmedDept,
+                semester = trimmedSem
             )
         }
     }
