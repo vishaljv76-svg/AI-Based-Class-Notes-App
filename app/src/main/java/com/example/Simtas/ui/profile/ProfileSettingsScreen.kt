@@ -1,6 +1,10 @@
 package com.example.Simtas.ui.profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,8 +46,11 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,10 +88,20 @@ fun ProfileSettingsScreen(
     onTabSelect: (HomeBottomTab) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            viewModel.onPhotoSelected(context, uri)
+        }
+    }
 
     ProfileSettingsScreenContent(
         uiState = uiState,
         modifier = modifier,
+        onPickPhotoClick = { photoPickerLauncher.launch("image/*") },
         onEditProfileClick = {
             viewModel.onEditProfileClicked()
             onEditProfileClick()
@@ -114,6 +131,7 @@ fun ProfileSettingsScreen(
 fun ProfileSettingsScreenContent(
     uiState: ProfileSettingsUiState,
     modifier: Modifier = Modifier,
+    onPickPhotoClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
     onCancelEdit: () -> Unit = {},
     onSaveChanges: () -> Unit = {},
@@ -156,6 +174,7 @@ fun ProfileSettingsScreenContent(
                 // User Profile Card
                 UserProfileCard(
                     uiState = uiState,
+                    onPickPhotoClick = onPickPhotoClick,
                     onEditClick = onEditProfileClick,
                     onCancelEdit = onCancelEdit,
                     onSaveChanges = onSaveChanges,
@@ -261,6 +280,7 @@ fun ProfileSettingsScreenContent(
 @Composable
 private fun UserProfileCard(
     uiState: ProfileSettingsUiState,
+    onPickPhotoClick: () -> Unit = {},
     onEditClick: () -> Unit,
     onCancelEdit: () -> Unit = {},
     onSaveChanges: () -> Unit = {},
@@ -291,20 +311,49 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        // Initials Avatar
+                        // Profile Photo with Camera / Edit Badge
                         Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(CircleShape)
-                                .background(InnerCircleBg)
+                            modifier = Modifier.size(56.dp)
                         ) {
-                            Text(
-                                text = uiState.userInitials,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = PurplePrimary
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .clip(CircleShape)
+                                    .background(InnerCircleBg)
+                                    .clickable { onPickPhotoClick() }
+                            ) {
+                                if (uiState.profilePhotoBitmap != null) {
+                                    Image(
+                                        bitmap = uiState.profilePhotoBitmap.asImageBitmap(),
+                                        contentDescription = "Profile Photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Text(
+                                        text = uiState.userInitials,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PurplePrimary
+                                    )
+                                }
+                            }
+
+                            // Small Camera Badge Icon
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .clip(CircleShape)
+                                    .background(PurplePrimary)
+                                    .clickable { onPickPhotoClick() }
+                            ) {
+                                Canvas(modifier = Modifier.size(11.dp)) {
+                                    drawCameraIcon(Color.White)
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(14.dp))
@@ -397,19 +446,49 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        // Profile Photo with Camera Badge (Edit Mode)
                         Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(44.dp)
-                                .clip(CircleShape)
-                                .background(InnerCircleBg)
+                            modifier = Modifier.size(48.dp)
                         ) {
-                            Text(
-                                text = uiState.userInitials,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = PurplePrimary
-                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(InnerCircleBg)
+                                    .clickable { onPickPhotoClick() }
+                            ) {
+                                if (uiState.profilePhotoBitmap != null) {
+                                    Image(
+                                        bitmap = uiState.profilePhotoBitmap.asImageBitmap(),
+                                        contentDescription = "Profile Photo",
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier.fillMaxSize()
+                                    )
+                                } else {
+                                    Text(
+                                        text = uiState.userInitials,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PurplePrimary
+                                    )
+                                }
+                            }
+
+                            // Small Camera Badge Icon
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .clip(CircleShape)
+                                    .background(PurplePrimary)
+                                    .clickable { onPickPhotoClick() }
+                            ) {
+                                Canvas(modifier = Modifier.size(10.dp)) {
+                                    drawCameraIcon(Color.White)
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.width(12.dp))
@@ -866,6 +945,30 @@ private fun BottomTabItem(
 private fun DrawScope.drawPencilEditIcon(color: Color) {
     val stroke = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
     drawLine(color = color, start = Offset(size.width * 0.2f, size.height * 0.8f), end = Offset(size.width * 0.8f, size.height * 0.2f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
+}
+
+private fun DrawScope.drawCameraIcon(color: Color) {
+    val stroke = Stroke(width = 1.2.dp.toPx(), cap = StrokeCap.Round)
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(size.width * 0.12f, size.height * 0.32f),
+        size = Size(size.width * 0.76f, size.height * 0.56f),
+        cornerRadius = CornerRadius(2.dp.toPx()),
+        style = stroke
+    )
+    drawCircle(
+        color = color,
+        radius = size.width * 0.17f,
+        center = Offset(size.width * 0.5f, size.height * 0.6f),
+        style = stroke
+    )
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(size.width * 0.36f, size.height * 0.18f),
+        size = Size(size.width * 0.28f, size.height * 0.14f),
+        cornerRadius = CornerRadius(1.dp.toPx()),
+        style = stroke
+    )
 }
 
 private fun DrawScope.drawBellIcon(color: Color) {

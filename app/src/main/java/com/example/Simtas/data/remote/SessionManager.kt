@@ -12,11 +12,13 @@ object SessionManager {
     private const val KEY_USER_ID = "user_id"
     private const val KEY_USER_NAME = "user_name"
     private const val KEY_USER_EMAIL = "user_email"
+    private const val KEY_PROFILE_PHOTO_PATH = "profile_photo_path"
 
     private var inMemoryToken: String? = null
     private var inMemoryUserId: Int = 1
     private var inMemoryUserName: String = "Alex Morgan"
     private var inMemoryUserEmail: String = "alex.morgan@campus.edu"
+    private var inMemoryPhotoPath: String? = null
 
     fun init(context: Context) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -24,6 +26,7 @@ object SessionManager {
         inMemoryUserId = prefs.getInt(KEY_USER_ID, 1)
         inMemoryUserName = prefs.getString(KEY_USER_NAME, "Alex Morgan") ?: "Alex Morgan"
         inMemoryUserEmail = prefs.getString(KEY_USER_EMAIL, "alex.morgan@campus.edu") ?: "alex.morgan@campus.edu"
+        inMemoryPhotoPath = prefs.getString(KEY_PROFILE_PHOTO_PATH, null)
     }
 
     fun saveSession(context: Context?, token: String, userId: Int, name: String, email: String) {
@@ -57,6 +60,16 @@ object SessionManager {
 
     fun getUserEmail(): String = inMemoryUserEmail
 
+    fun getProfilePhotoPath(): String? = inMemoryPhotoPath
+
+    fun saveProfilePhotoPath(context: Context?, path: String?) {
+        inMemoryPhotoPath = path
+        context?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)?.edit()?.apply {
+            if (path == null) remove(KEY_PROFILE_PHOTO_PATH) else putString(KEY_PROFILE_PHOTO_PATH, path)
+            apply()
+        }
+    }
+
     fun isLoggedIn(): Boolean = !inMemoryToken.isNullOrEmpty()
 
     fun clearSession(context: Context?) {
@@ -64,6 +77,7 @@ object SessionManager {
         inMemoryUserId = 1
         inMemoryUserName = "Alex Morgan"
         inMemoryUserEmail = "alex.morgan@campus.edu"
+        inMemoryPhotoPath = null
 
         context?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)?.edit()?.clear()?.apply()
     }

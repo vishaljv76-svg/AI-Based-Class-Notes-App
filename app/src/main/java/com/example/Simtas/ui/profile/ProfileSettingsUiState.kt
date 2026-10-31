@@ -22,5 +22,8 @@ data class ProfileSettingsUiState(
     val editName: String = "",
     val editCourse: String = "",
     val editDepartment: String = "",
-    val editSemester: String = ""
+    val editSemester: String = "",
+    val profilePhotoBitmap: android.graphics.Bitmap? = null,
+    val isUploadingPhoto: Boolean = false,
+    val photoErrorMessage: String? = null
 )

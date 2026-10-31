@@ -12,7 +12,8 @@ data class ProfileData(
     val departmentText: String,
     val semesterBadgeText: String,
     val yearBadgeText: String,
-    val hasProfile: Boolean
+    val hasProfile: Boolean,
+    val profileImage: String? = null
 )
 
 object ProfileRepository {
@@ -34,6 +35,8 @@ object ProfileRepository {
             val dept = profile?.optString("department") ?: "Computer Science & Engineering"
             val semBadge = profile?.optString("semester_badge") ?: "Semester 7"
             val yearBadge = profile?.optString("year_badge") ?: "Final year"
+            val photoUrl = profile?.optString("profile_image")?.takeIf { it.isNotBlank() && it != "null" }
+                ?: user?.optString("profile_image")?.takeIf { it.isNotBlank() && it != "null" }
 
             return ProfileData(
                 userName = name,
@@ -43,10 +46,21 @@ object ProfileRepository {
                 departmentText = dept,
                 semesterBadgeText = semBadge,
                 yearBadgeText = yearBadge,
-                hasProfile = json.optBoolean("has_profile", false)
+                hasProfile = json.optBoolean("has_profile", false),
+                profileImage = photoUrl
             )
         }
         return null
+    }
+
+    suspend fun uploadProfilePhoto(base64Image: String): Boolean {
+        val payload = JSONObject().apply {
+            put("userId", SessionManager.getUserId())
+            put("image_base64", base64Image)
+        }.toString()
+
+        val response = ApiClient.post("profile/profile_upload_photo.php", payload)
+        return response.isSuccess
     }
 
     suspend fun saveOrUpdateProfile(
