@@ -58,8 +58,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.Simtas.ui.home.HomeBottomTab
 import com.example.Simtas.ui.theme.AIBasedClassNotesAppTheme
+import com.example.Simtas.ui.theme.AppThemeMode
+import com.example.Simtas.ui.theme.CardBg
 import com.example.Simtas.ui.theme.InnerCircleBg
+import com.example.Simtas.ui.theme.OuterRingBorder
 import com.example.Simtas.ui.theme.PurplePrimary
+import com.example.Simtas.ui.theme.ThemeManager
 import com.example.Simtas.ui.theme.SplashBackground
 import com.example.Simtas.ui.theme.TextDarkPrimary
 import com.example.Simtas.ui.theme.TextMuted
@@ -102,6 +106,9 @@ fun ProfileSettingsScreen(
         uiState = uiState,
         modifier = modifier,
         onPickPhotoClick = { photoPickerLauncher.launch("image/*") },
+        onThemeClick = viewModel::onThemeClicked,
+        onDismissThemeDialog = viewModel::onDismissThemeDialog,
+        onThemeSelect = { mode -> viewModel.onThemeSelected(context, mode) },
         onEditProfileClick = {
             viewModel.onEditProfileClicked()
             onEditProfileClick()
@@ -132,6 +139,9 @@ fun ProfileSettingsScreenContent(
     uiState: ProfileSettingsUiState,
     modifier: Modifier = Modifier,
     onPickPhotoClick: () -> Unit = {},
+    onThemeClick: () -> Unit = {},
+    onDismissThemeDialog: () -> Unit = {},
+    onThemeSelect: (AppThemeMode) -> Unit = {},
     onEditProfileClick: () -> Unit = {},
     onCancelEdit: () -> Unit = {},
     onSaveChanges: () -> Unit = {},
@@ -200,7 +210,8 @@ fun ProfileSettingsScreenContent(
                 StudyPreferencesGroupCard(
                     uiState = uiState,
                     onToggleStudyReminders = onToggleStudyReminders,
-                    onToggleNotesReadyAlerts = onToggleNotesReadyAlerts
+                    onToggleNotesReadyAlerts = onToggleNotesReadyAlerts,
+                    onThemeClick = onThemeClick
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -224,13 +235,15 @@ fun ProfileSettingsScreenContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Logout Button
+                val logoutBtnBg = if (ThemeManager.isDark()) Color(0xFF331818) else LogoutBg
+                val logoutTextCol = if (ThemeManager.isDark()) Color(0xFFFF6B6B) else LogoutRedText
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(LogoutBg)
+                        .background(logoutBtnBg)
                         .clickable { onLogoutClick() }
                 ) {
                     Row(
@@ -238,14 +251,14 @@ fun ProfileSettingsScreenContent(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Canvas(modifier = Modifier.size(18.dp)) {
-                            drawLogoutIcon(LogoutRedText)
+                            drawLogoutIcon(logoutTextCol)
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = "Logout",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = LogoutRedText
+                            color = logoutTextCol
                         )
                     }
                 }
@@ -270,6 +283,15 @@ fun ProfileSettingsScreenContent(
                 onTabSelect = onTabSelect,
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
+
+            // Theme Selection Dialog
+            if (uiState.isThemeDialogVisible) {
+                ThemeSelectionDialog(
+                    currentMode = uiState.selectedThemeMode,
+                    onSelectMode = onThemeSelect,
+                    onDismiss = onDismissThemeDialog
+                )
+            }
         }
     }
 }
@@ -300,7 +322,7 @@ private fun UserProfileCard(
                 spotColor = Color.Black.copy(alpha = 0.06f)
             )
             .clip(shape)
-            .background(Color.White)
+            .background(CardBg)
             .padding(18.dp)
     ) {
         if (!uiState.isEditing) {
@@ -439,6 +461,10 @@ private fun UserProfileCard(
             }
         } else {
             // In-place Edit Form
+            val isDark = ThemeManager.isDark()
+            val fieldBg = if (isDark) Color(0xFF28233D) else Color(0xFFF9F9FB)
+            val fieldBorder = if (isDark) Color(0xFF3D355C) else Color(0xFFE2E8F0)
+
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -525,10 +551,10 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF9F9FB),
-                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedContainerColor = fieldBg,
+                        unfocusedContainerColor = fieldBg,
                         focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        unfocusedBorderColor = fieldBorder,
                         focusedTextColor = TextDarkPrimary,
                         unfocusedTextColor = TextDarkPrimary
                     ),
@@ -551,10 +577,10 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF9F9FB),
-                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedContainerColor = fieldBg,
+                        unfocusedContainerColor = fieldBg,
                         focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        unfocusedBorderColor = fieldBorder,
                         focusedTextColor = TextDarkPrimary,
                         unfocusedTextColor = TextDarkPrimary
                     ),
@@ -577,10 +603,10 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF9F9FB),
-                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedContainerColor = fieldBg,
+                        unfocusedContainerColor = fieldBg,
                         focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        unfocusedBorderColor = fieldBorder,
                         focusedTextColor = TextDarkPrimary,
                         unfocusedTextColor = TextDarkPrimary
                     ),
@@ -603,10 +629,10 @@ private fun UserProfileCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF9F9FB),
-                        unfocusedContainerColor = Color(0xFFF9F9FB),
+                        focusedContainerColor = fieldBg,
+                        unfocusedContainerColor = fieldBg,
                         focusedBorderColor = PurplePrimary,
-                        unfocusedBorderColor = Color(0xFFE2E8F0),
+                        unfocusedBorderColor = fieldBorder,
                         focusedTextColor = TextDarkPrimary,
                         unfocusedTextColor = TextDarkPrimary
                     ),
@@ -667,9 +693,11 @@ private fun UserProfileCard(
 private fun StudyPreferencesGroupCard(
     uiState: ProfileSettingsUiState,
     onToggleStudyReminders: (Boolean) -> Unit,
-    onToggleNotesReadyAlerts: (Boolean) -> Unit
+    onToggleNotesReadyAlerts: (Boolean) -> Unit,
+    onThemeClick: () -> Unit = {}
 ) {
     val shape = RoundedCornerShape(20.dp)
+    val chevronColor = TextMuted
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -680,7 +708,7 @@ private fun StudyPreferencesGroupCard(
                 spotColor = Color.Black.copy(alpha = 0.05f)
             )
             .clip(shape)
-            .background(Color.White)
+            .background(CardBg)
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -750,7 +778,9 @@ private fun StudyPreferencesGroupCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onThemeClick() }
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Canvas(modifier = Modifier.size(18.dp)) {
@@ -773,7 +803,7 @@ private fun StudyPreferencesGroupCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Canvas(modifier = Modifier.size(12.dp)) {
-                        drawChevronRight(TextMuted)
+                        drawChevronRight(chevronColor)
                     }
                 }
             }
@@ -790,6 +820,7 @@ private fun YourAccountGroupCard(
     onPrivacyStorageClick: () -> Unit
 ) {
     val shape = RoundedCornerShape(20.dp)
+    val chevronColor = TextMuted
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -800,7 +831,7 @@ private fun YourAccountGroupCard(
                 spotColor = Color.Black.copy(alpha = 0.05f)
             )
             .clip(shape)
-            .background(Color.White)
+            .background(CardBg)
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -826,7 +857,7 @@ private fun YourAccountGroupCard(
                 }
 
                 Canvas(modifier = Modifier.size(12.dp)) {
-                    drawChevronRight(TextMuted)
+                    drawChevronRight(chevronColor)
                 }
             }
 
@@ -852,7 +883,7 @@ private fun YourAccountGroupCard(
                 }
 
                 Canvas(modifier = Modifier.size(12.dp)) {
-                    drawChevronRight(TextMuted)
+                    drawChevronRight(chevronColor)
                 }
             }
         }
@@ -868,9 +899,10 @@ private fun HomeBottomNavigationBar(
     onTabSelect: (HomeBottomTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val mutedColor = TextMuted
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = Color.White,
+        color = CardBg,
         shadowElevation = 12.dp
     ) {
         Row(
@@ -885,7 +917,7 @@ private fun HomeBottomNavigationBar(
                 label = "Home",
                 isSelected = selectedTab == HomeBottomTab.Home,
                 onClick = { onTabSelect(HomeBottomTab.Home) },
-                icon = { drawHomeIcon(if (selectedTab == HomeBottomTab.Home) PurplePrimary else TextMuted) }
+                icon = { drawHomeIcon(if (selectedTab == HomeBottomTab.Home) PurplePrimary else mutedColor) }
             )
 
             // Tab 2: My Notes
@@ -893,7 +925,7 @@ private fun HomeBottomNavigationBar(
                 label = "My Notes",
                 isSelected = selectedTab == HomeBottomTab.Notes,
                 onClick = { onTabSelect(HomeBottomTab.Notes) },
-                icon = { drawNotesTabIcon(if (selectedTab == HomeBottomTab.Notes) PurplePrimary else TextMuted) }
+                icon = { drawNotesTabIcon(if (selectedTab == HomeBottomTab.Notes) PurplePrimary else mutedColor) }
             )
 
             // Tab 3: Profile
@@ -901,7 +933,7 @@ private fun HomeBottomNavigationBar(
                 label = "Profile",
                 isSelected = selectedTab == HomeBottomTab.Profile,
                 onClick = { onTabSelect(HomeBottomTab.Profile) },
-                icon = { drawProfileTabIcon(if (selectedTab == HomeBottomTab.Profile) PurplePrimary else TextMuted) }
+                icon = { drawProfileTabIcon(if (selectedTab == HomeBottomTab.Profile) PurplePrimary else mutedColor) }
             )
         }
     }
@@ -1009,6 +1041,45 @@ private fun DrawScope.drawSunThemeIcon(color: Color) {
     drawLine(color = color, start = Offset(size.width * 0.5f, size.height * 0.78f), end = Offset(size.width * 0.5f, size.height * 0.9f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
     drawLine(color = color, start = Offset(size.width * 0.1f, size.height * 0.5f), end = Offset(size.width * 0.22f, size.height * 0.5f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
     drawLine(color = color, start = Offset(size.width * 0.78f, size.height * 0.5f), end = Offset(size.width * 0.9f, size.height * 0.5f), strokeWidth = 1.8.dp.toPx(), cap = StrokeCap.Round)
+}
+
+private fun DrawScope.drawMoonThemeIcon(color: Color) {
+    val stroke = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
+    val path = Path().apply {
+        moveTo(size.width * 0.75f, size.height * 0.15f)
+        quadraticTo(
+            size.width * 0.12f, size.height * 0.35f,
+            size.width * 0.35f, size.height * 0.85f
+        )
+        quadraticTo(
+            size.width * 0.85f, size.height * 0.9f,
+            size.width * 0.85f, size.height * 0.5f
+        )
+        quadraticTo(
+            size.width * 0.5f, size.height * 0.45f,
+            size.width * 0.75f, size.height * 0.15f
+        )
+        close()
+    }
+    drawPath(path = path, color = color, style = stroke)
+}
+
+private fun DrawScope.drawSystemDeviceIcon(color: Color) {
+    val stroke = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round)
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(size.width * 0.22f, size.height * 0.12f),
+        size = Size(size.width * 0.56f, size.height * 0.76f),
+        cornerRadius = CornerRadius(4.dp.toPx()),
+        style = stroke
+    )
+    drawLine(
+        color = color,
+        start = Offset(size.width * 0.42f, size.height * 0.8f),
+        end = Offset(size.width * 0.58f, size.height * 0.8f),
+        strokeWidth = 2.dp.toPx(),
+        cap = StrokeCap.Round
+    )
 }
 
 private fun DrawScope.drawLockIcon(color: Color) {
@@ -1121,6 +1192,94 @@ private fun DrawScope.drawProfileTabIcon(color: Color) {
         )
     }
     drawPath(path = bodyPath, color = color, style = stroke)
+}
+
+/**
+ * Clean In-Place Theme Selection Dialog supporting Light, Dark, and System Default modes.
+ */
+@Composable
+private fun ThemeSelectionDialog(
+    currentMode: AppThemeMode,
+    onSelectMode: (AppThemeMode) -> Unit,
+    onDismiss: () -> Unit
+) {
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = CardBg,
+        shape = RoundedCornerShape(24.dp),
+        title = {
+            Text(
+                text = "Choose Theme",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextDarkPrimary
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                AppThemeMode.values().forEach { mode ->
+                    val isSelected = mode == currentMode
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (isSelected) InnerCircleBg else Color.Transparent)
+                            .clickable { onSelectMode(mode) }
+                            .padding(vertical = 12.dp, horizontal = 12.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Canvas(modifier = Modifier.size(20.dp)) {
+                                when (mode) {
+                                    AppThemeMode.Light -> drawSunThemeIcon(PurplePrimary)
+                                    AppThemeMode.Dark -> drawMoonThemeIcon(PurplePrimary)
+                                    AppThemeMode.System -> drawSystemDeviceIcon(PurplePrimary)
+                                }
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = mode.displayName,
+                                fontSize = 14.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) PurplePrimary else TextDarkPrimary
+                            )
+                        }
+
+                        // Radio Selection Indicator
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(22.dp)
+                                .clip(CircleShape)
+                                .background(if (isSelected) PurplePrimary else OuterRingBorder)
+                        ) {
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(containerColor = PurplePrimary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(text = "Done", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

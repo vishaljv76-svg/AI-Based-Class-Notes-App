@@ -6,11 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.Simtas.data.remote.SessionManager
+import com.example.Simtas.ui.theme.ThemeManager
 import com.example.Simtas.ui.detailednotes.DetailedNotesViewModel
 import com.example.Simtas.ui.createnotes.CreateSmartNotesScreen
 import com.example.Simtas.ui.detailednotes.DetailedNotesScreen
@@ -63,9 +65,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         SessionManager.init(this)
+        ThemeManager.init(this)
         enableEdgeToEdge()
         setContent {
-            AIBasedClassNotesAppTheme {
+            val currentThemeMode by ThemeManager.themeMode.collectAsState()
+            AIBasedClassNotesAppTheme(themeMode = currentThemeMode) {
                 MainAppNavigation()
             }
         }

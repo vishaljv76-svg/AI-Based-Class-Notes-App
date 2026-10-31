@@ -12,6 +12,8 @@ import com.example.Simtas.data.remote.SessionManager
 import com.example.Simtas.data.repository.AuthRepository
 import com.example.Simtas.data.repository.ProfileRepository
 import com.example.Simtas.ui.home.HomeBottomTab
+import com.example.Simtas.ui.theme.AppThemeMode
+import com.example.Simtas.ui.theme.ThemeManager
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -32,6 +34,13 @@ class ProfileSettingsViewModel : ViewModel() {
     val uiState: StateFlow<ProfileSettingsUiState> = _uiState.asStateFlow()
 
     init {
+        val currentMode = ThemeManager.currentThemeMode
+        _uiState.update {
+            it.copy(
+                selectedThemeMode = currentMode,
+                themeModeText = currentMode.displayName
+            )
+        }
         loadProfile()
     }
 
@@ -201,6 +210,25 @@ class ProfileSettingsViewModel : ViewModel() {
 
     fun toggleNotesReadyAlerts(enabled: Boolean) {
         _uiState.update { it.copy(isNotesReadyAlertsEnabled = enabled) }
+    }
+
+    fun onThemeClicked() {
+        _uiState.update { it.copy(isThemeDialogVisible = true) }
+    }
+
+    fun onDismissThemeDialog() {
+        _uiState.update { it.copy(isThemeDialogVisible = false) }
+    }
+
+    fun onThemeSelected(context: Context?, mode: AppThemeMode) {
+        ThemeManager.setThemeMode(context, mode)
+        _uiState.update {
+            it.copy(
+                selectedThemeMode = mode,
+                themeModeText = mode.displayName,
+                isThemeDialogVisible = false
+            )
+        }
     }
 
     fun selectTab(tab: HomeBottomTab) {

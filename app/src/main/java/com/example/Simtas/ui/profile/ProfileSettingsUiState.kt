@@ -1,6 +1,7 @@
 package com.example.Simtas.ui.profile
 
 import com.example.Simtas.ui.home.HomeBottomTab
+import com.example.Simtas.ui.theme.AppThemeMode
 
 /**
  * UI State for Profile & Settings Screen following MVVM architecture.
@@ -16,6 +17,8 @@ data class ProfileSettingsUiState(
     val isStudyRemindersEnabled: Boolean = true,
     val isNotesReadyAlertsEnabled: Boolean = true,
     val themeModeText: String = "Light",
+    val selectedThemeMode: AppThemeMode = AppThemeMode.Light,
+    val isThemeDialogVisible: Boolean = false,
     val appVersionText: String = "SmartNotes AI · v1.0.0",
     val selectedTab: HomeBottomTab = HomeBottomTab.Profile,
     val isEditing: Boolean = false,
